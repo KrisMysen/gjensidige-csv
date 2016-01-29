@@ -15,18 +15,46 @@ const YNAB_INFLOW = 5;
 
 var fs = require("fs");
 var readline = require("readline");
+var fd = fs.openSync('outputfiles/test.csv', 'w');
 
 var rl = readline.createInterface({
   input: fs.createReadStream("inputfiles/Kort_Siste_Transaksjoner.csv")
 });
 
+var firstLine = true;
 rl.on("line", function (line) {
-
+  if (firstLine) {
+    firstLine = false;
+    fs.write(fd, "Date,Payee,Category,Memo,Outflow,Inflow\n");
+    return;
+  }
   var lineParts = line.split("\t");
+
+  var ynabDate = formatDate(lineParts[GJENSIDIGE_DATE]);
+  var inflowOrOutflow = formatAmount(lineParts[GJENSIDIGE_AMOUNT_NOK]);
+  var ynabLine = ynabDate + "," + lineParts[GJENSIDIGE_EXPLANATION] + ",,," +  inflowOrOutflow + "\n";
+
+  fs.write(fd, ynabLine);
+  console.log(ynabLine);
 
   for (var part in lineParts) {
     console.log(lineParts[part]);
   }
-  debugger;
+
   console.log(line);
 });
+
+
+function formatDate(date) {
+  var dateParts = date.split(".");
+  return dateParts[0] + "/" + dateParts[1] + "/" + dateParts[2];
+}
+
+function formatAmount(amount) {
+  amount = amount.replace(",", ".");
+  if (Number(amount) > 0) {
+    return "," + amount;
+  } else {
+    return amount.replace("-", "") + ",";
+  }
+}

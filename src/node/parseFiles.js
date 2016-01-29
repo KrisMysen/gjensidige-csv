@@ -6,13 +6,6 @@ const GJENSIDIGE_CURRENCY = 3;
 const GJENSIDIGE_RATE = 4;
 const GJENSIDIGE_AMOUNT_NOK = 5;
 
-const YNAB_DATE = 0;
-const YNAB_PAYEE = 1;
-const YNAB_CATEGORY = 2;
-const YNAB_MEMO = 3;
-const YNAB_OUTFLOW = 4;
-const YNAB_INFLOW = 5;
-
 var fs = require("fs");
 var readline = require("readline");
 var fd = fs.openSync('outputfiles/test.csv', 'w');
@@ -31,17 +24,12 @@ rl.on("line", function (line) {
   var lineParts = line.split("\t");
 
   var ynabDate = formatDate(lineParts[GJENSIDIGE_DATE]);
+  var ynabPayee = lineParts[GJENSIDIGE_EXPLANATION];
   var inflowOrOutflow = formatAmount(lineParts[GJENSIDIGE_AMOUNT_NOK]);
-  var ynabLine = ynabDate + "," + lineParts[GJENSIDIGE_EXPLANATION] + ",,," +  inflowOrOutflow + "\n";
+  var ynabLine = ynabDate + "," + ynabPayee + ",,," +  inflowOrOutflow + "\n";
 
   fs.write(fd, ynabLine);
   console.log(ynabLine);
-
-  for (var part in lineParts) {
-    console.log(lineParts[part]);
-  }
-
-  console.log(line);
 });
 
 

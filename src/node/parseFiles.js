@@ -9,28 +9,37 @@ const GJENSIDIGE_AMOUNT_NOK = 5;
 var fs = require("fs");
 var readline = require("readline");
 var fd = fs.openSync('outputfiles/test.csv', 'w');
+fs.write(fd, "Date,Payee,Category,Memo,Outflow,Inflow\n");
 
-var rl = readline.createInterface({
-  input: fs.createReadStream("inputfiles/Kort_Siste_Transaksjoner.csv")
-});
+fs.readdir("inputfiles", (err, files) => {
+  if (err) throw err;
 
-var firstLine = true;
-rl.on("line", function (line) {
-  if (firstLine) {
-    firstLine = false;
-    fs.write(fd, "Date,Payee,Category,Memo,Outflow,Inflow\n");
-    return;
+  for (var fileName in files) {
+
+    var rl = readline.createInterface({
+      input: fs.createReadStream("inputfiles/" + files[fileName])
+    });
+
+    rl.on("line", function (line) {
+      if (line.indexOf("Dato") > -1) {
+        return;
+      }
+
+      var lineParts = line.split("\t");
+
+      var ynabDate = formatDate(lineParts[GJENSIDIGE_DATE]);
+      var ynabPayee = lineParts[GJENSIDIGE_EXPLANATION];
+      var inflowOrOutflow = formatAmount(lineParts[GJENSIDIGE_AMOUNT_NOK]);
+      var ynabLine = ynabDate + "," + ynabPayee + ",,," +  inflowOrOutflow + "\n";
+
+      fs.write(fd, ynabLine);
+      console.log(ynabLine);
+    });
+
+
   }
-  var lineParts = line.split("\t");
-
-  var ynabDate = formatDate(lineParts[GJENSIDIGE_DATE]);
-  var ynabPayee = lineParts[GJENSIDIGE_EXPLANATION];
-  var inflowOrOutflow = formatAmount(lineParts[GJENSIDIGE_AMOUNT_NOK]);
-  var ynabLine = ynabDate + "," + ynabPayee + ",,," +  inflowOrOutflow + "\n";
-
-  fs.write(fd, ynabLine);
-  console.log(ynabLine);
 });
+
 
 
 function formatDate(date) {

@@ -1,10 +1,7 @@
 
 const GJENSIDIGE_DATE = 0;
-const GJENSIDIGE_EXPLANATION = 1;
-const GJENSIDIGE_CURRENCY_AMOUNT = 2;
-const GJENSIDIGE_CURRENCY = 3;
-const GJENSIDIGE_RATE = 4;
-const GJENSIDIGE_AMOUNT_NOK = 5;
+const GJENSIDIGE_EXPLANATION = 2;
+const GJENSIDIGE_AMOUNT_NOK = 3;
 
 var fs = require("fs");
 var readline = require("readline");
@@ -28,7 +25,7 @@ fs.readdir("inputfiles", (err, files) => {
       var lineParts = line.split("\t");
 
       var ynabDate = formatDate(lineParts[GJENSIDIGE_DATE]);
-      var ynabPayee = lineParts[GJENSIDIGE_EXPLANATION];
+      var ynabPayee = formatPayee(lineParts[GJENSIDIGE_EXPLANATION]);
       var inflowOrOutflow = formatAmount(lineParts[GJENSIDIGE_AMOUNT_NOK]);
       var ynabLine = ynabDate + "," + ynabPayee + ",,," +  inflowOrOutflow + "\n";
 
@@ -45,6 +42,10 @@ fs.readdir("inputfiles", (err, files) => {
 function formatDate(date) {
   var dateParts = date.split(".");
   return dateParts[0] + "/" + dateParts[1] + "/" + dateParts[2];
+}
+
+function formatPayee(payee) {
+  return payee.replace(/^(\d{2}.\d{2}\s)/, "");  
 }
 
 function formatAmount(amount) {
